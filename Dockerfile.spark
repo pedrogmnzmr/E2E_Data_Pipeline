@@ -1,0 +1,38 @@
+# Usar la imagen base de Python 3.11 slim
+FROM python:3.11-slim
+
+# Instalar Java y otras herramientas necesarias
+RUN apt-get update && apt-get install -y \
+    openjdk-17-jre-headless \  
+    wget \
+    tar \
+    g++ \
+    build-essential \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Variables de entorno para Spark
+ENV SPARK_VERSION=3.5.4
+ENV SPARK_HOME=/opt/spark
+ENV PATH=$PATH:$SPARK_HOME/bin
+
+# Descargar e instalar Spark con Hadoop integrado
+RUN wget https://archive.apache.org/dist/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop3.tgz \
+    && tar -xzf spark-${SPARK_VERSION}-bin-hadoop3.tgz -C /opt/ \
+    && mv /opt/spark-${SPARK_VERSION}-bin-hadoop3 $SPARK_HOME \
+    && rm spark-${SPARK_VERSION}-bin-hadoop3.tgz
+
+# Crear un archivo core-site.xml básico para Hadoop
+RUN mkdir -p $SPARK_HOME/conf && \
+    echo "<?xml version=\"1.0\"?>\n<?xml-stylesheet type=\"text/xsl\" href=\"configuration.xsl\"?>\n<configuration>\n<property>\n<name>fs.defaultFS</name>\n<value>file:///</value>\n</property>\n</configuration>" > $SPARK_HOME/conf/core-site.xml
+
+# Crear un directorio temporal para checkpoints de Spark
+RUN mkdir -p /tmp/spark-checkpoints && chmod -R 777 /tmp/spark-checkpoints
+
+# Instalar dependencias de Python 
+WORKDIR /app
+COPY requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copiar la aplicación Spark
+COPY app/ /app/
