@@ -7,7 +7,7 @@ In today’s data-driven world, businesses need robust, scalable, and efficient 
 
 ## System Architecture
 
-![System Architecture](https://github.com/pedrogmnzmr/pipeline_end_to_end/blob/main/E2E.jpg)
+![System Architecture](https://github.com/pedrogmnzmr/E2E_Data_Pipeline/blob/main/E2E.jpg?raw=true)
 
 Our architecture is designed to deliver a seamless flow of data across the pipeline: 
 
